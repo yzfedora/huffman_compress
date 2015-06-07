@@ -177,8 +177,6 @@ static void _construct_huffman_table(struct huffman_node *node,
 	if (node->left == NULL && node->right == NULL) {
 		node->code = code;
 		node->bits = h - 1;
-		printf("val=%#-4x code=%#-6x bits=%-2d freq=%d\n", node->val,
-				node->code, node->bits, node->freq);
 	}
 }
 
@@ -188,7 +186,7 @@ inline void construct_huffman_table(struct huffman_tree *htree)
 }
 
 /* Used to checking huffman tree whether the same  */
-static void _traversal_huffman_tree(struct huffman_node *node)
+/*static void _traversal_huffman_tree(struct huffman_node *node)
 {
 	char buf[8];
 
@@ -200,23 +198,21 @@ static void _traversal_huffman_tree(struct huffman_node *node)
 	}
 	_traversal_huffman_tree(node->left);
 	_traversal_huffman_tree(node->right);
-}
+}*/
 
 static void _print_huffman_frequency(struct huffman_tree *htree)
 {
 	int i, j;
-	char buf[BUFSZ];
 	struct huffman_node *node = htree->h_node;
 
-#define DEFAULT_FIELD_LEN	20
 	for (i = 0, j = 0; i < HFM_LEAF_MAX; i++) {
 
 		if (node[i].freq > 0) {
 			if (j % 4 == 0)
 				printf("\n");
-			sprintf(buf, "%c->%#x(%d)", node[i].val,
-					node[i].code, node[i].freq);
-			printf("%-*s", DEFAULT_FIELD_LEN, buf);
+
+		printf("val=%#-4x code=%#-6x bits=%-2d freq=%d\n", node->val,
+				node->code, node->bits, node->freq);
 			j++;
 		}
 	}

@@ -21,6 +21,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <limits.h>
+#include <errno.h>
 
 #define HFM_COMPRESS	0x1
 #define HFM_DECOMPRESS	0x2

@@ -80,6 +80,6 @@ int main(int argc, char **argv)
 	else if (flags & HFM_DECOMPRESS)
 		hfm->decompress(hfm);
 	
-	hfm->delete(hfm);
+	//hfm->delete(hfm);
 	return 0;
 }

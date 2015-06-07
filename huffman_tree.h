@@ -24,14 +24,21 @@
 #include <sys/ioctl.h>
 
 /* The INVALID node in the parent is used to indicate it is a internal node. */
-#define INVALID_PTR	((struct huffman_node *)-1)
-#define INVALID_VAL	((unsigned short)-1)
 #define HFM_LEAF_MAX	256
 
 struct huffman_node {
-	unsigned short val;
-	unsigned short code;
+/* Used in decompress time, to indicate the node whether it is the leaf node */
+#define INVALID_VAL	((short)-1)
+	short val;
+	unsigned int code;	/* maxinum code are 32 bits */
+/* Use bitwise to remove the bits which have stored */
+#define CODEBITS	(sizeof(unsigned int) * 8)
 	unsigned short bits;
+/* The index 256~511 is used by internal nodes, the parent member will be
+ * INVALID_PTR, used to tell the extract_min() which is not frequency. If
+ * it stores the result of add two frequencies, then the parent member will
+ * be NULL, and can extract by extract_min(). */
+#define INVALID_PTR	((struct huffman_node *)-1)
 	struct huffman_node 	*parent,
 				*left,
 				*right;

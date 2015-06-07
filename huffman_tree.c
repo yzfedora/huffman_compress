@@ -30,24 +30,26 @@ struct huffman_tree *huffman_tree_new(char *file)
 
 	while ((htree = (struct huffman_tree *)malloc(sizeof(*htree)))
 			== NULL);
-
+	
+	/* Initialize the huffman tree object */
 	bzero(htree, sizeof(*htree));
 	strcpy(htree->h_file, file);
+	htree->construct_huffman_tree = construct_huffman_tree;
+	htree->construct_huffman_table = construct_huffman_table;
+	htree->get_frequency = get_frequency;
+	htree->delete = huffman_tree_delete;
+	htree->print =print_huffman_tree;
+	
 	/* Setting value to huffman node ##*/
 	for (i = 0; i < HFM_LEAF_MAX; i++)
-		htree->h_node[i].val = (unsigned short)i;
+		htree->h_node[i].val = (short)i;
+
 	/* The node wihch great than HFM_LEAF_MAX are internal nodes */
 	for (i = HFM_LEAF_MAX; i < HFM_NODES_MAX; i++) {
 		htree->h_node[i].parent = INVALID_PTR;
 		htree->h_node[i].val = INVALID_VAL;
 	}
 
-	/* Setting delete function to free the huffman object */
-	htree->construct_huffman_tree = construct_huffman_tree;
-	htree->construct_huffman_table = construct_huffman_table;
-	htree->get_frequency = get_frequency;
-	htree->delete = huffman_tree_delete;
-	htree->print =print_huffman_tree;
 	return htree;
 }
 
@@ -61,19 +63,18 @@ inline void huffman_tree_delete(struct huffman_tree *htree)
 int get_frequency(struct huffman_tree *htree)
 {
 	int fd, n;
-	char buf[BUFSZ], *p;
+	unsigned char buf[BUFSZ];
+	unsigned char *p;
 
 	if ((fd = open(htree->h_file, O_RDONLY)) == -1)
 		return -1;
 
 	while ((n = read(fd, buf, BUFSZ)) > 0) {
 		for (p = buf; p < buf + n; p++) {
-			htree->h_node[(int)*p].freq++;
-			/*printf("htree->h_node[%d].freq = %d\n", (int)*p,
-					htree->h_node[(int)*p].freq);*/
+			htree->h_node[*p].freq++;
 		}
 	}
-
+	
 	close(fd);
 	return 0;
 }
@@ -159,9 +160,9 @@ void construct_huffman_tree(struct huffman_tree *htree)
 
 /* Construct the Huffman Table */
 static void _construct_huffman_table(struct huffman_node *node,
-		unsigned short code, unsigned int h)
+		unsigned int code, unsigned int h)
 {
-	unsigned l, r;
+	unsigned int l, r;
 
 	if (node == NULL)
 		return;
@@ -176,8 +177,8 @@ static void _construct_huffman_table(struct huffman_node *node,
 	if (node->left == NULL && node->right == NULL) {
 		node->code = code;
 		node->bits = h - 1;
-		printf("val=%#x, code=%#x, bits=%d\n", node->val,
-				node->code, node->bits);
+		printf("val=%#-4x code=%#-6x bits=%-2d freq=%d\n", node->val,
+				node->code, node->bits, node->freq);
 	}
 }
 
@@ -230,9 +231,9 @@ void print_huffman_tree(struct huffman_tree *htree)
 	printf("Frequency: val->code(freq)\n");
 	_print_huffman_frequency(htree);
 	printf("\n");
-	printf("Pre-order traverse: \n");
+	/*printf("Pre-order traverse: \n");
 	_traversal_huffman_tree(htree->h_ptr);
-	printf("\n");
+	printf("\n");*/
 	
 	/* Although I want to use a good way to print huffman tree, but I
 	 * realized this is not ideal. so I would to put the implementations
